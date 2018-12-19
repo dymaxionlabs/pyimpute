@@ -3,7 +3,7 @@ import sys
 import os
 from pyimpute import load_training_vector, load_targets, impute
 from sklearn.ensemble import ExtraTreesClassifier
-from sklearn import cross_validation
+from sklearn import model_selection
 import json
 import numpy as np
 
@@ -45,7 +45,7 @@ def main():
 
     # Cross validate
     k = 5
-    scores = cross_validation.cross_val_score(clf, train_xs, train_y, cv=k)
+    scores = model_selection.cross_val_score(clf, train_xs, train_y, cv=k)
     print("%d-fold Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (k, scores.mean() * 100, scores.std() * 200))
 
     # Run the model on the current data; i.e. predict current conditions

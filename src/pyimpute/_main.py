@@ -5,7 +5,7 @@ import os
 import math
 import logging
 from sklearn import metrics
-from sklearn import cross_validation
+from sklearn import model_selection
 logger = logging.getLogger('pyimpute')
 
 
@@ -298,7 +298,7 @@ def evaluate_clf(clf, X, y, k=None, test_size=0.5, scoring="f1_weighted", featur
     Evalate the classifier on the FULL training dataset
     This takes care of fitting on train/test splits
     """
-    X_train, X_test, y_train, y_true = cross_validation.train_test_split(
+    X_train, X_test, y_train, y_true = model_selection.train_test_split(
         X, y, test_size=test_size)
 
     clf.fit(X_train, y_train)
@@ -324,7 +324,7 @@ def evaluate_clf(clf, X, y, k=None, test_size=0.5, scoring="f1_weighted", featur
 
     if k:
         print("Cross validation")
-        kf = cross_validation.KFold(len(y), n_folds=k)
-        scores = cross_validation.cross_val_score(clf, X, y, cv=kf, scoring=scoring)
+        kf = model_selection.KFold(len(y), n_folds=k)
+        scores = model_selection.cross_val_score(clf, X, y, cv=kf, scoring=scoring)
         print(scores)
         print("%d-fold Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (k, scores.mean() * 100, scores.std() * 200))
