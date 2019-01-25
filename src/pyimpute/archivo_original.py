@@ -5,11 +5,9 @@ import os
 import math
 import logging
 from sklearn import metrics
-
-from sklearn.model_selection import train_test_split
+from sklearn import cross_validation
 logger = logging.getLogger('pyimpute')
 
-xrange=range 
 
 def load_training_vector(response_shapes, explanatory_rasters, response_field, metric='mean'):
     """
@@ -110,11 +108,9 @@ def load_targets(explanatory_rasters):
 
             # Save or check the geotransform
             if not aff:
-                #aff = src.affine
-                aff = src.transform
+                aff = src.affine
             else:
-                #assert aff == src.affine
-                assert aff == src.transform
+                assert aff == src.affine
 
             # Save or check the shape
             if not shape:
@@ -240,10 +236,6 @@ def impute(target_xs, clf, raster_info, outdir="output", linechunk=1000, class_p
             class_ds.close()
 
 
-
-
-
-    
 def stratified_sample_raster(strata_data, target_sample_size=30, min_sample_proportion=0.1):
     """
     Parameters
@@ -306,7 +298,7 @@ def evaluate_clf(clf, X, y, k=None, test_size=0.5, scoring="f1_weighted", featur
     Evalate the classifier on the FULL training dataset
     This takes care of fitting on train/test splits
     """
-    X_train, X_test, y_train, y_true = train_test_split(
+    X_train, X_test, y_train, y_true = cross_validation.train_test_split(
         X, y, test_size=test_size)
 
     clf.fit(X_train, y_train)
@@ -332,7 +324,7 @@ def evaluate_clf(clf, X, y, k=None, test_size=0.5, scoring="f1_weighted", featur
 
     if k:
         print("Cross validation")
-        kf = train_test_split.KFold(len(y), n_folds=k)
-        scores = train_test_split.cross_val_score(clf, X, y, cv=kf, scoring=scoring)
+        kf = cross_validation.KFold(len(y), n_folds=k)
+        scores = cross_validation.cross_val_score(clf, X, y, cv=kf, scoring=scoring)
         print(scores)
         print("%d-fold Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (k, scores.mean() * 100, scores.std() * 200))

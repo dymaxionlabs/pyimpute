@@ -143,107 +143,90 @@ def load_targets(explanatory_rasters):
 
 
 def impute(target_xs, clf, raster_info, outdir="output", linechunk=1000, class_prob=True, certainty=True):
-    """
-    Parameters
-    ----------
-    target_xs: Array of explanatory variables for which to predict responses
-    clf: instance of a scikit-learn Classifier
-    raster_info: dictionary of raster attributes with key 'gt', 'shape' and 'srs'
-
-    Options
-    -------
-    outdir : output directory
-    linechunk : number of lines to process per pass; reduce only if memory is constrained
-    class_prob : Boolean. Should we create a probability raster for each class?
-    certainty : Boolean. Should we produce a raster of overall classification certainty?
-    """
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
-
     shape = raster_info['shape']
+    
+   
+    response_path = os.path.join(outdir, "responses.tif")
+    response_ds = rasterio.open(response_path, 'w', driver='GTiff', height= shape[0],
+                       width= shape[1], count=1, dtype='float32',
+                       crs=raster_info['crs'], 
+                       transform = raster_info['affine'])
 
-    profile = {
-        'affine': raster_info['affine'],
-        'blockxsize': shape[1],
-        'height': shape[0],
-        'blockysize': 1,
-        'count': 1,
-        'crs': raster_info['crs'],
-        'driver': u'GTiff',
-        'dtype': 'int16',
-        'nodata': -32768,
-        'tiled': False,
-        'transform': raster_info['affine'].to_gdal(),
-        'width': shape[1]}
+    
+    
+    certainty_path = os.path.join(outdir, "certainty.tif")
+    
+    certainty_ds = rasterio.open(certainty_path, 'w', driver='GTiff', height= shape[0],
+                       width=shape[1], count=1, dtype='float32',
+                       crs=raster_info['crs'], 
+                       transform= raster_info['affine'])
+        
 
-    try:
-        response_path = os.path.join(outdir, "responses.tif")
-        response_ds = rasterio.open(response_path, 'w', **profile)
+    class_dss = []
+    
+    classes = list(clf.classes_)
+    class_paths = []
+    for i, c in enumerate(classes):
+        ods = os.path.join(outdir, "probability_%s.tif" % c)
+        class_paths.append(ods)
+        
+    for p in class_paths:
 
-        profile['dtype'] = 'float32'
+        class_dss.append(rasterio.open(p, 'w', driver='GTiff', height= shape[0],
+               width=shape[1], count=1, dtype='float32',
+               crs=raster_info['crs'], transform= raster_info['affine']))
+
+    if not linechunk:
+        linechunk = shape[0]
+    chunks = int(math.ceil(shape[0] / float(linechunk)))
+
+    for chunk in range(chunks):
+        logger.debug("Writing chunk %d of %d" % (chunk+1, chunks))
+        row = chunk * linechunk
+        if row + linechunk > shape[0]:
+            linechunk = shape[0] - row
+        # in 1D space
+        start = shape[1] * row
+        end = start + shape[1] * linechunk
+        line = target_xs[start:end, :]
+
+        window = ((row, row + linechunk), (0, shape[1]))
+
+        # Predict
+        responses = clf.predict(line)
+        print(linechunk)
+        
+        #responses2D = responses.reshape((linechunk, shape[1])).astype('float32')
+        #responses2D = responses.reshape((shape[0], shape[1])).astype('float32')
+        #print(responses2D)
+        """
+        response_ds.write_band(1, responses2D)
+
+        if certainty or class_prob:
+            proba = clf.predict_proba(line)
+
+        # Certainty
         if certainty:
-            certainty_path = os.path.join(outdir, "certainty.tif")
-            certainty_ds = rasterio.open(certainty_path, 'w', **profile)
+            certaintymax = proba.max(axis=1)
+            certainty2D = certaintymax.reshape((linechunk, shape[1])).astype('float32')
+            certainty_ds.write_band(1, certainty2D, window=window)
 
-        class_dss = []
-        if class_prob:
-            classes = list(clf.classes_)
-            class_paths = []
-            for i, c in enumerate(classes):
-                ods = os.path.join(outdir, "probability_%s.tif" % c)
-                class_paths.append(ods)
-            for p in class_paths:
-                class_dss.append(rasterio.open(p, 'w', **profile))
+        # write out probabilities for each class as a separate raster
+        for i, class_ds in enumerate(class_dss):
+            proba_class = proba[:, i]
+            classcert2D = proba_class.reshape((linechunk, shape[1])).astype('float32')
+            class_ds.write_band(1, classcert2D, window=window)
 
-        # Chunky logic
-        if not linechunk:
-            linechunk = shape[0]
-        chunks = int(math.ceil(shape[0] / float(linechunk)))
 
-        for chunk in range(chunks):
-            logger.debug("Writing chunk %d of %d" % (chunk+1, chunks))
-            row = chunk * linechunk
-            if row + linechunk > shape[0]:
-                linechunk = shape[0] - row
-            # in 1D space
-            start = shape[1] * row
-            end = start + shape[1] * linechunk
-            line = target_xs[start:end, :]
 
-            window = ((row, row + linechunk), (0, shape[1]))
-
-            # Predict
-            responses = clf.predict(line)
-            responses2D = responses.reshape((linechunk, shape[1])).astype('int16')
-            response_ds.write_band(1, responses2D, window=window)
-
-            if certainty or class_prob:
-                proba = clf.predict_proba(line)
-
-            # Certainty
-            if certainty:
-                certaintymax = proba.max(axis=1)
-                certainty2D = certaintymax.reshape((linechunk, shape[1])).astype('float32')
-                certainty_ds.write_band(1, certainty2D, window=window)
-
-            # write out probabilities for each class as a separate raster
-            for i, class_ds in enumerate(class_dss):
-                proba_class = proba[:, i]
-                classcert2D = proba_class.reshape((linechunk, shape[1])).astype('float32')
-                class_ds.write_band(1, classcert2D, window=window)
-
-    finally:
         response_ds.close()
-        if certainty:
+        if certainty == True:
             certainty_ds.close()
         for class_ds in class_dss:
             class_ds.close()
+        
+        """
 
-
-
-
-
-    
 def stratified_sample_raster(strata_data, target_sample_size=30, min_sample_proportion=0.1):
     """
     Parameters

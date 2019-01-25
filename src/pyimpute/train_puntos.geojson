@@ -1,0 +1,28 @@
+{
+"type": "FeatureCollection",
+"name": "train_puntos",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::32720" } },
+"features": [
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 350055.115618728275876, 6182007.594523873180151 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 350938.784668455482461, 6181809.135916961356997 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 351553.35625115246512, 6181810.639948716387153 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 349937.043303825659677, 6183331.840406617149711 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 349069.049142667208798, 6183192.671430416405201 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 351532.270525014435407, 6182481.714722037315369 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 347343.255605894024484, 6181037.593752908520401 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 348571.244836600031704, 6182800.901513570919633 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 349960.07657377794385, 6181905.972446354106069 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 346110.437523367872927, 6182927.276759272441268 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 349793.684196040732786, 6184509.715241637080908 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 352430.120388435781933, 6184652.031969152390957 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 345960.378937894362025, 6184063.302997622638941 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 347546.526052702974994, 6182746.607830308377743 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 347204.920614125323482, 6184200.617542980238795 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 347874.634528742986731, 6184219.944396145641804 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 348861.070783314760774, 6183877.391759745776653 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 347573.524479832209181, 6183205.788743129000068 ] } },
+{ "type": "Feature", "properties": { "ambiente": "cultivo", "amb": 0 }, "geometry": { "type": "Point", "coordinates": [ 346986.770223350613378, 6181928.354232452809811 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 351726.759752140205819, 6181546.513713851571083 ] } },
+{ "type": "Feature", "properties": { "ambiente": "monte", "amb": 1 }, "geometry": { "type": "Point", "coordinates": [ 350880.771814835024998, 6181766.501763012260199 ] } }
+]
+}
