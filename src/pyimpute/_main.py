@@ -109,10 +109,8 @@ def load_targets(explanatory_rasters):
 
             # Save or check the geotransform
             if not aff:
-                #aff = src.affine
                 aff = src.transform
             else:
-                #assert aff == src.affine
                 assert aff == src.transform
 
             # Save or check the shape
@@ -134,7 +132,7 @@ def load_targets(explanatory_rasters):
     expl = np.array(explanatory_raster_arrays).T
 
     raster_info = {
-        'affine': aff,
+        'transform': aff,
         'shape': shape,
         'crs': crs
     }
@@ -162,7 +160,7 @@ def impute(target_xs, clf, raster_info, outdir="output", linechunk=1000, class_p
     shape = raster_info['shape']
 
     profile = {
-        'affine': raster_info['affine'],
+        'transform': raster_info['transform'],
         'blockxsize': shape[1],
         'height': shape[0],
         'blockysize': 1,
@@ -172,7 +170,6 @@ def impute(target_xs, clf, raster_info, outdir="output", linechunk=1000, class_p
         'dtype': 'int16',
         'nodata': -32768,
         'tiled': False,
-        'transform': raster_info['affine'].to_gdal(),
         'width': shape[1]}
 
     response_ds = None
