@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python3
 
 from _main import load_training_vector, load_targets, impute, evaluate_clf
 from sklearn.ensemble import RandomForestClassifier
@@ -31,7 +31,6 @@ target_xs, raster_info = load_targets(explanatory_rasters)
 
 #==================================================================
 
-outfile = str("C://Users//carli/Documents//Proyectos_Desarrollo_de_Software//pyimpute//src//pyimpute//datos")
 impute(target_xs, clf, raster_info, outdir='/tmp',
         linechunk=400, class_prob=True, certainty=True)
 

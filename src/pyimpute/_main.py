@@ -5,11 +5,10 @@ import os
 import math
 import logging
 from sklearn import metrics
+from sklearn import model_selection
 
-from sklearn.model_selection import train_test_split
 logger = logging.getLogger('pyimpute')
 
-xrange=range 
 
 def load_training_vector(response_shapes, explanatory_rasters, response_field, metric='mean'):
     """
@@ -176,6 +175,10 @@ def impute(target_xs, clf, raster_info, outdir="output", linechunk=1000, class_p
         'transform': raster_info['affine'].to_gdal(),
         'width': shape[1]}
 
+    response_ds = None
+    certainty_ds = None
+    class_dss = []
+
     try:
         response_path = os.path.join(outdir, "responses.tif")
         response_ds = rasterio.open(response_path, 'w', **profile)
@@ -185,7 +188,6 @@ def impute(target_xs, clf, raster_info, outdir="output", linechunk=1000, class_p
             certainty_path = os.path.join(outdir, "certainty.tif")
             certainty_ds = rasterio.open(certainty_path, 'w', **profile)
 
-        class_dss = []
         if class_prob:
             classes = list(clf.classes_)
             class_paths = []
@@ -233,17 +235,14 @@ def impute(target_xs, clf, raster_info, outdir="output", linechunk=1000, class_p
                 class_ds.write_band(1, classcert2D, window=window)
 
     finally:
-        response_ds.close()
-        if certainty:
+        if response_ds:
+            response_ds.close()
+        if certainty_ds:
             certainty_ds.close()
         for class_ds in class_dss:
             class_ds.close()
 
 
-
-
-
-    
 def stratified_sample_raster(strata_data, target_sample_size=30, min_sample_proportion=0.1):
     """
     Parameters
@@ -306,7 +305,7 @@ def evaluate_clf(clf, X, y, k=None, test_size=0.5, scoring="f1_weighted", featur
     Evalate the classifier on the FULL training dataset
     This takes care of fitting on train/test splits
     """
-    X_train, X_test, y_train, y_true = train_test_split(
+    X_train, X_test, y_train, y_true = model_selection.train_test_split(
         X, y, test_size=test_size)
 
     clf.fit(X_train, y_train)
@@ -325,14 +324,14 @@ def evaluate_clf(clf, X, y, k=None, test_size=0.5, scoring="f1_weighted", featur
 
     print("Feature importances")
     if not feature_names:
-        feature_names = ["%d" % i for i in xrange(X.shape[1])]
+        feature_names = ["%d" % i for i in range(X.shape[1])]
     for f, imp in zip(feature_names, clf.feature_importances_):
         print("%20s: %s" % (f, round(imp * 100, 1)))
     print()
 
     if k:
         print("Cross validation")
-        kf = train_test_split.KFold(len(y), n_folds=k)
-        scores = train_test_split.cross_val_score(clf, X, y, cv=kf, scoring=scoring)
+        kf = model_selection.KFold(len(y), n_folds=k)
+        scores = model_selection.cross_val_score(clf, X, y, cv=kf, scoring=scoring)
         print(scores)
         print("%d-fold Cross Validation Accuracy: %0.2f (+/- %0.2f)" % (k, scores.mean() * 100, scores.std() * 200))
